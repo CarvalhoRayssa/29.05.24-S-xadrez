@@ -9,8 +9,11 @@ const larguraCelulaPadrao = 100; // variável utilizada para definir o tamanho d
 const alturaCelulaPadrao = 100; // variável utilizada para definir o tamanho da altura padrão da célula/quadrante padrão do tabuleiro
 const larguraPecaPadrao = 50; // variável utilizada para definir o tamanho da largura padrão das peças
 const alturaPecaPadrao = 50; // variável utilizada para definir o tamanho da altura padrão das peças
+
 const linhas = ["1","2","3","4","5","6","7","8"]; // variável do tipo matriz para definir a quantidade e nomes das linhas do tabuleiro
+
 const colunas = ["a","b","c","d","e","f","g","h"]; // variável do tipo matriz para definir a quantidade e nomes das colunas do tabuleiro
+
 var pecas = []; // variável do tipo matriz que vai atribuir os objetos das peças
 var celula = []; // variável do tipo matriz que vai atribuir os objetos das células/quadrantes
 var numCelula = 0; // variável que vai contabilizar a quantidade de células dos quadrantes (linhas * colunas)
@@ -23,6 +26,7 @@ var divsCelulas = []; // variável do tipo matriz que vai atribuir os elementos 
 const dirPecas = "./pecas/"; // variável somente leitura que armazena o caminho do diretório de imagens das peças
 const dirQuadrantes = "./quadrantes/"; // variável somente leitura que armazena o caminho do diretório de imagens dos quadrantes
 var corPermitida = cor1;
+var pecaClicada;
 
 class HistoricoMovimento { // criação da classe HistoricoMovimento
     constructor () { // declaração do construtor da classe
@@ -181,7 +185,7 @@ try {
 } catch (e) {
     console.error("Eita! Aconteceu alguma coisa que não deu certo finalizar as linhas de código para a criação das peças. Veja o erro: ", e);
 }
-    
+
 function moverPeao(pecaAnalisada, elementoDestino) {
     try {
         let permitirMovimento = false;
@@ -238,6 +242,7 @@ function moverTorre(pecaAnalisada, elementoDestino) {
         /**
          * As linhas de código abaixo analisam o movimento das torres pretas e autorizam os movimentos das mesmas
          */
+        let permitirMovimento = false;
         if (
             pecaAnalisada.linha == elementoDestino.dataset.line && // elementoDestino.dataset.line é uma string e precisa ser convertida para tipo numérico, caso precise ser utilizada como número
             pecaAnalisada.coluna != elementoDestino.dataset.column && 
@@ -272,34 +277,100 @@ function moverTorre(pecaAnalisada, elementoDestino) {
     } catch (e) {
         console.error("Eita! Aconteceu alguma coisa que não deu certo finalizar as linhas de código para mover a torre. Veja o erro: ", e);
     }
-function moverCavalo(pecaAnalisada, elementoDestino){
-    /*
-    o cavalo anda em L, ou seja:
-
-    -dois quadrantes para frente e 1 quadrante para algum lado(esquerdo ou direito)
-    -dois quadrantes para algum lado (direita ou esquerda) e 1 para cima ou para baixo
-    -dois quadrantes para trás e 1 quadrante para algum lado(esquerdo ou direito)
-    */
-   let linhaQuadrantePecaAtual = pecaAnalisada.linha;
-   let colunaQuadrantePecaAtual = pecaAnalisada.coluna;
-   let numVetorColunaPeca = colunas.indexOf(colunaQuadrantePecaAtual);
-   let numVetorLinhaPeca = linhas.indexOf(linhaQuadrantePecaAtual);
-   console.log("numVetorColunaPeca: ", numVetorColunaPeca);
-   console.log("numVetorLinhaPeca: ", numVetorLinhaPeca);
-   let numVetorColunaQuadrante = colunas.indexOf(elementoDestino.dataset.column);
-   let numVetorLinhaQuadrante = linhas.indexOf(elementoDestino.dataset.line);
-   console.log("numVetorColunaQuadrante: ", numVetorColunaQuadrante);
-   console.log("numVetorLinhaQuadrante: ", numVetorLinhaQuadrante);
-   let permitirMovimento = false;
-   if(
-      numVetorColunaPeca == (numVetorColunaQuadrante - 2) &&
-      numVetorLinhaPeca == (numVetorLinhaQuadrante - 1) 
-   ){
-     permitirMovimento = true;
-   }
-}
 }
 
+function moverCavalo(pecaAnalisada, elementoDestino) {
+    /**
+     * criar código que vai analisar se o movimento em L está correto
+     * 
+     * o cavalo se movimenta em L, ou seja:
+     * 
+     * - dois quadrantes para frente ou para trás e 1 quadrante para algum lado (esquerdo ou direito)
+     * - dois quadrantes para algum lado (direito ou esquerdo) e 1 quadrante para cima ou para baixo
+     */
+    console.clear();
+    let linhaQuadrantePecaAtual = pecaAnalisada.linha;
+    let colunaQuadrantePecaAtual = pecaAnalisada.coluna;
+    let numVetorColunaPeca = colunas.indexOf(colunaQuadrantePecaAtual);
+    let numVetorLinhaPeca = linhas.indexOf(linhaQuadrantePecaAtual);
+    console.log("numVetorColunaPeca: ", numVetorColunaPeca);
+    console.log("numVetorLinhaPeca: ", numVetorLinhaPeca);
+    let numVetorColunaQuadrante = colunas.indexOf(elementoDestino.dataset.column);
+    let numVetorLinhaQuadrante = linhas.indexOf(elementoDestino.dataset.line);
+    console.log("numVetorColunaQuadrante: ", numVetorColunaQuadrante);
+    console.log("numVetorLinhaQuadrante: ", numVetorLinhaQuadrante);
+    let permitirMovimento = false;
+    if (   // valida o movimento do cavalo um quadrante para esquerda e dois quadrantes para baixo
+        numVetorColunaQuadrante == (numVetorColunaPeca - 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca - 2)
+    ) {
+        permitirMovimento = true;
+    } else if (   // valida o movimento do cavalo um quadrante para direita dois quadrantes para baixo
+        numVetorColunaQuadrante == (numVetorColunaPeca + 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca - 2)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo dois quadrantes para direita e um quadrante para baixo
+        numVetorColunaQuadrante == (numVetorColunaPeca + 2) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca - 1)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo dois quadrantes para direita e um quadrante para cima
+
+        numVetorColunaQuadrante == (numVetorColunaPeca + 2) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca + 1)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo um quadrante para direita e dois quadrantes para cima
+        numVetorColunaQuadrante == (numVetorColunaPeca + 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca + 2)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo um quadrante para esquerda e dois quadrantes para direita
+        numVetorColunaQuadrante == (numVetorColunaPeca - 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca + 2)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo dois quadrantes para esquerda e um quadrante para cima
+        numVetorColunaQuadrante == (numVetorColunaPeca - 2) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca + 1)
+    ) {
+        permitirMovimento = true;
+    } else if ( // valida o movimento do cavalo dois quadrantes para esquerda e um quadrante para baixo
+        numVetorColunaQuadrante == (numVetorColunaPeca - 2) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca - 1)
+    ) {
+        permitirMovimento = true;
+    }
+    return permitirMovimento;
+}
+
+function moverBispo(pecaAnalisada, elementoDestino) {
+    console.clear();
+    let linhaQuadrantePecaAtual = pecaAnalisada.linha;
+    let colunaQuadrantePecaAtual = pecaAnalisada.coluna;
+    let numVetorColunaPeca = colunas.indexOf(colunaQuadrantePecaAtual);
+    let numVetorLinhaPeca = linhas.indexOf(linhaQuadrantePecaAtual);
+    console.log("numVetorColunaPeca: ", numVetorColunaPeca);
+    console.log("numVetorLinhaPeca: ", numVetorLinhaPeca);
+    let numVetorColunaQuadrante = colunas.indexOf(elementoDestino.dataset.column);
+    let numVetorLinhaQuadrante = linhas.indexOf(elementoDestino.dataset.line);
+    console.log("numVetorColunaQuadrante: ", numVetorColunaQuadrante);
+    console.log("numVetorLinhaQuadrante: ", numVetorLinhaQuadrante);
+    let permitirMovimento = false;
+    if (   // valida o movimento do bispo na diagonal, esquerda, para cima
+        numVetorColunaQuadrante == (numVetorColunaPeca + 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca + 1)
+    ) {
+        permitirMovimento = true;
+    } else if (   // valida o movimento do cavalo um quadrante para direita dois quadrantes para baixo
+        numVetorColunaQuadrante == (numVetorColunaPeca + 1) &&
+        numVetorLinhaQuadrante == (numVetorLinhaPeca - 2)
+    ) {
+        permitirMovimento = true;
+}
+return permitirMovimento;
+}
 (function() { // execução em tempo real das linhas de código do bloco de função inominada
     document.onmousedown = handleMouseDown;
     function handleMouseDown(event) {
@@ -309,10 +380,10 @@ function moverCavalo(pecaAnalisada, elementoDestino){
             if (pecaClicada.tagName == "IMG" || pecaClicada.tagName == "img") {
                 if (pecaClicada.dataset.indexNumber) {
                     pecaClicada.style.display = "none";
-                    let imgPecaTemp = document.createElement('img');
-                    imgPecaTemp.src = dirPecas + pecaClicada.src.replace(/^.*[\\/]/, '');
-                    imgPecaTemp.width = larguraPecaPadrao;
-                    imgPecaTemp.height = alturaPecaPadrao;
+                    let imgPecaTemp = document.createElement('img'); // <img />
+                    imgPecaTemp.src = dirPecas + pecaClicada.src.replace(/^.*[\\/]/, ''); // <img src="./pecas/peca.png" />
+                    imgPecaTemp.width = larguraPecaPadrao; // <img src="./pecas/peca.png" width="..." />
+                    imgPecaTemp.height = alturaPecaPadrao; // <img src="./pecas/peca.png" width="..." height="..." />
                     pecaTemp.appendChild(imgPecaTemp);
                     pecaTemp.style.display = "block";
                 }
@@ -384,8 +455,8 @@ function moverCavalo(pecaAnalisada, elementoDestino){
                                     movimentoPermitido = moverTorre(pecaAnalisada, elementoDestino);
                                     break;
                                 case "cavalo":
-                                        movimentoPermitido = moverCavalo(pecaAnalisada, elementoDestino);
-                                        break;
+                                    movimentoPermitido = moverCavalo(pecaAnalisada, elementoDestino);
+                                    break;
                                 default:
                                     console.error("Peça selecionada não identificada!");
                                     break;
@@ -406,6 +477,7 @@ function moverCavalo(pecaAnalisada, elementoDestino){
 
                                 pecaAnalisada.linha = elementoDestino.dataset.line;
                                 pecaAnalisada.coluna = elementoDestino.dataset.column;
+                                console.log(pecas);
                                 pecaAnalisada.nMovimento++;
 
                                 let pecaClicadaTemp = pecaClicada;
@@ -417,7 +489,7 @@ function moverCavalo(pecaAnalisada, elementoDestino){
                                     corPermitida = cor1;
                                 }
                             } else {
-                                console.error("É... parece que não é usa vez ainda. Guenta aí...");
+                                console.error("É... parece que não é sua vez ainda. Guenta aí...");
                             }
                         } else {
                             console.error("Movimento não permitido.");
